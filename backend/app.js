@@ -65,9 +65,9 @@ app.use('/api', imageRoutes);
 
 // At the end of backend/app.js, after all API routes:
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-});
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+// });
 
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {

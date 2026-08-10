@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "node --watch app.js"
+    "dev": "node --watch app.js",
+    "vercel-build": "npm install --platform=linux --arch=x64 sharp"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

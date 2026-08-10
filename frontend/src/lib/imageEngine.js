@@ -325,7 +325,7 @@ export function colorizeGrayscaleImage(canvas) {
         nB = Math.max(0, lum * 0.94 - 4);
       }
 
-      data[i]     = Math.round(nR);
+      data[i] = Math.round(nR);
       data[i + 1] = Math.round(nG);
       data[i + 2] = Math.round(nB);
     }
@@ -349,36 +349,69 @@ export async function convertImage(file, targetFormat = 'png', quality = 0.85, o
   }
 
   // ICO Favicon Conversion
+  // Browsers cannot encode 'image/x-icon' via canvas.toBlob — it always returns null.
+  // We manually build a valid multi-size ICO binary (16x16, 32x32, 48x48) with PNG frames.
   if (fmt === 'ico') {
     const img = await loadImage(file);
-    const canvas = document.createElement('canvas');
-    canvas.width = 32;
-    canvas.height = 32;
-    const ctx = canvas.getContext('2d');
+    const ICO_SIZES = [16, 32, 48];
 
-    if (bgColor && bgColor !== 'transparent') {
-      ctx.fillStyle = bgColor;
-      ctx.fillRect(0, 0, 32, 32);
-    }
+    // Render each size as a PNG blob
+    const pngBlobs = await Promise.all(ICO_SIZES.map(size => {
+      const c = document.createElement('canvas');
+      c.width = size;
+      c.height = size;
+      const cx = c.getContext('2d');
+      if (bgColor && bgColor !== 'transparent') {
+        cx.fillStyle = bgColor;
+        cx.fillRect(0, 0, size, size);
+      }
+      if (colorMode === 'grayscale') cx.filter = 'grayscale(100%)';
+      else if (colorMode === 'sepia') cx.filter = 'sepia(100%)';
+      else if (colorMode === 'invert') cx.filter = 'invert(100%)';
+      cx.drawImage(img, 0, 0, size, size);
+      return new Promise(res => c.toBlob(res, 'image/png'));
+    }));
 
-    if (colorMode === 'grayscale') ctx.filter = 'grayscale(100%)';
-    else if (colorMode === 'sepia') ctx.filter = 'sepia(100%)';
-    else if (colorMode === 'invert') ctx.filter = 'invert(100%)';
+    // Convert PNG blobs to ArrayBuffers
+    const pngBuffers = await Promise.all(pngBlobs.map(b => b.arrayBuffer()));
 
-    ctx.drawImage(img, 0, 0, 32, 32);
+    // Build ICO binary:
+    //   6-byte ICONDIR + N x 16-byte ICONDIRENTRY + raw PNG data
+    const count = ICO_SIZES.length;
+    const headerSize = 6 + count * 16;
+    const offsets = [];
+    let dataOffset = headerSize;
+    for (const buf of pngBuffers) { offsets.push(dataOffset); dataOffset += buf.byteLength; }
 
-    const blob = await new Promise(res => canvas.toBlob(res, 'image/x-icon'));
-    const fallbackBlob = blob || await new Promise(res => canvas.toBlob(res, 'image/png'));
+    const icoBuffer = new ArrayBuffer(dataOffset);
+    const view = new DataView(icoBuffer);
+
+    // ICONDIR header
+    view.setUint16(0, 0, true);      // reserved = 0
+    view.setUint16(2, 1, true);      // type: 1 = ICO
+    view.setUint16(4, count, true);  // image count
+
+    // ICONDIRENTRY for each size
+    ICO_SIZES.forEach((size, i) => {
+      const base = 6 + i * 16;
+      view.setUint8(base, size === 256 ? 0 : size); // width  (0 means 256)
+      view.setUint8(base + 1, size === 256 ? 0 : size); // height (0 means 256)
+      view.setUint8(base + 2, 0);              // color count (0 = truecolor)
+      view.setUint8(base + 3, 0);              // reserved
+      view.setUint16(base + 4, 1, true);       // color planes
+      view.setUint16(base + 6, 32, true);      // bits per pixel
+      view.setUint32(base + 8, pngBuffers[i].byteLength, true); // data size
+      view.setUint32(base + 12, offsets[i], true);               // data offset
+    });
+
+    // Append PNG data
+    const icoBytes = new Uint8Array(icoBuffer);
+    pngBuffers.forEach((buf, i) => icoBytes.set(new Uint8Array(buf), offsets[i]));
+
+    const icoBlob = new Blob([icoBuffer], { type: 'image/x-icon' });
     const newName = file.name.replace(/\.[^/.]+$/, '') + '.ico';
-    const icoFile = new File([fallbackBlob], newName, { type: 'image/x-icon' });
-
-    return {
-      file: icoFile,
-      url: URL.createObjectURL(fallbackBlob),
-      width: 32,
-      height: 32,
-      size: fallbackBlob.size
-    };
+    const icoFile = new File([icoBlob], newName, { type: 'image/x-icon' });
+    return { file: icoFile, url: URL.createObjectURL(icoBlob), width: 48, height: 48, size: icoBlob.size };
   }
 
   // PDF Conversion

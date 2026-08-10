@@ -63,6 +63,12 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api', imageRoutes);
 
+// At the end of backend/app.js, after all API routes:
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
+
 app.listen(PORT, () => {
   console.log(`⚡ PicCraft Express + Sharp + PostgreSQL Backend running on http://localhost:${PORT}`);
 });

@@ -5,7 +5,7 @@ import { formatBytes } from '../lib/imageEngine';
 export default function FileCard({ item, onRemove, onPreview, onDownloadSingle, isProcessing }) {
   const { file, previewUrl, processedResult, status } = item;
   const origSize = file?.size || 0;
-  const newSize  = processedResult?.size || 0;
+  const newSize = processedResult?.size || 0;
   const pct = origSize > 0 && newSize > 0
     ? Math.round(((origSize - newSize) / origSize) * 100)
     : 0;

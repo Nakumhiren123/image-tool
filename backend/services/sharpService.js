@@ -1,30 +1,18 @@
 const sharp = require('sharp');
-const path = require('path');
-const fs = require('fs');
-
-const outputDir = path.join(__dirname, '../output');
-if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir, { recursive: true });
-}
 
 class SharpService {
   /**
-   * Convert image to target format
+   * Convert image to target format — returns a Buffer
    */
-  async convertImage(inputPath, targetFormat = 'png', options = {}) {
+  async convertImage(inputBuffer, targetFormat = 'png', options = {}) {
     const quality = parseInt(options.quality) || 80;
     const format = targetFormat.toLowerCase();
-    const uniqueId = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    const outputPath = path.join(outputDir, `converted_${uniqueId}.${format}`);
-    const outputExt = format === 'jpg' ? 'jpg' : format; //
 
-    let pipeline = sharp(inputPath);
+    let pipeline = sharp(inputBuffer);
 
     switch (format) {
       case 'jpg':
-        pipeline = pipeline.flatten({ background: '#ffffff' }).jpeg({ quality });
-        break;
-      case 'jpeg':                          // ← add this separate case
+      case 'jpeg':
         pipeline = pipeline.flatten({ background: '#ffffff' }).jpeg({ quality });
         break;
       case 'png':
@@ -44,65 +32,60 @@ class SharpService {
         break;
     }
 
-    await pipeline.toFile(outputPath);
-    return outputPath;
+    return pipeline.toBuffer(); // ✅ return Buffer, no disk needed
   }
 
   /**
-   * Compress image with target quality or binary search for target KB
+   * Compress image — returns a Buffer
    */
-  async compressImage(inputPath, quality = 80, targetKB = null) {
-    const format = 'jpeg';
+  async compressImage(inputBuffer, quality = 80, targetKB = null) {
     if (!targetKB) {
-      return this.convertImage(inputPath, 'jpg', { quality });
+      return this.convertImage(inputBuffer, 'jpg', { quality });
     }
 
     const targetBytes = targetKB * 1024;
     let minQ = 5;
     let maxQ = 98;
-    let bestPath = null;
+    let bestBuffer = null;
     let iterations = 0;
 
     while (iterations < 7) {
       const midQ = Math.round((minQ + maxQ) / 2);
       iterations++;
-      const uniqueId = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      const currentPath = path.join(outputDir, `compress_search_${uniqueId}_q${midQ}.jpg`);
-      await sharp(inputPath).flatten({ background: '#ffffff' }).jpeg({ quality: midQ }).toFile(currentPath);
 
-      const stats = fs.statSync(currentPath);
-      bestPath = currentPath;
+      const buf = await sharp(inputBuffer)
+        .flatten({ background: '#ffffff' })
+        .jpeg({ quality: midQ })
+        .toBuffer(); // ✅ no disk I/O
 
-      if (stats.size > targetBytes) {
+      bestBuffer = buf;
+
+      if (buf.length > targetBytes) {
         maxQ = midQ - 1;
       } else {
         minQ = midQ + 1;
-        if (targetBytes - stats.size < targetBytes * 0.05) break;
+        if (targetBytes - buf.length < targetBytes * 0.05) break;
       }
     }
 
-    return bestPath;
+    return bestBuffer;
   }
 
   /**
-   * Resize image
+   * Resize image — returns a Buffer
    */
-  async resizeImage(inputPath, width, height, maintainAspect = true) {
+  async resizeImage(inputBuffer, width, height, maintainAspect = true) {
     const w = parseInt(width) || null;
     const h = parseInt(height) || null;
-    const uniqueId = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    const outputPath = path.join(outputDir, `resized_${uniqueId}.png`);
 
-    await sharp(inputPath)
+    return sharp(inputBuffer)
       .resize({
         width: w,
         height: h,
         fit: maintainAspect ? sharp.fit.inside : sharp.fit.fill,
         withoutEnlargement: false
       })
-      .toFile(outputPath);
-
-    return outputPath;
+      .toBuffer(); // ✅ no disk I/O
   }
 }
 

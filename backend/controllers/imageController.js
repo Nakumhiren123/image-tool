@@ -1,5 +1,13 @@
 const sharpService = require('../services/sharpService');
-const fs = require('fs');
+
+const mimeMap = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  avif: 'image/avif',
+  gif: 'image/gif',
+};
 
 exports.convertImage = async (req, res) => {
   try {
@@ -8,13 +16,15 @@ exports.convertImage = async (req, res) => {
     }
 
     const { format = 'png', quality = 80 } = req.body;
-    const outputPath = await sharpService.convertImage(req.file.path, format, { quality });
 
-    res.sendFile(outputPath, () => {
-      // Clean up temp files
-      fs.unlink(req.file.path, () => { });
-      fs.unlink(outputPath, () => { });
-    });
+    // ✅ Pass buffer instead of file path
+    const outputBuffer = await sharpService.convertImage(req.file.buffer, format, { quality });
+
+    // ✅ Send buffer directly, no disk needed
+    res.set('Content-Type', mimeMap[format] || 'image/png');
+    res.set('Content-Disposition', `attachment; filename="converted.${format}"`);
+    res.send(outputBuffer);
+
   } catch (err) {
     console.error('Convert controller error:', err);
     res.status(500).json({ error: 'Image conversion failed', details: err.message });
@@ -28,12 +38,19 @@ exports.compressImage = async (req, res) => {
     }
 
     const { quality = 80, targetKB = null } = req.body;
-    const outputPath = await sharpService.compressImage(req.file.path, parseInt(quality), targetKB ? parseInt(targetKB) : null);
 
-    res.sendFile(outputPath, () => {
-      fs.unlink(req.file.path, () => { });
-      fs.unlink(outputPath, () => { });
-    });
+    // ✅ Pass buffer instead of file path
+    const outputBuffer = await sharpService.compressImage(
+      req.file.buffer,
+      parseInt(quality),
+      targetKB ? parseInt(targetKB) : null
+    );
+
+    // ✅ Send buffer directly
+    res.set('Content-Type', 'image/jpeg');
+    res.set('Content-Disposition', 'attachment; filename="compressed.jpg"');
+    res.send(outputBuffer);
+
   } catch (err) {
     console.error('Compress controller error:', err);
     res.status(500).json({ error: 'Image compression failed', details: err.message });
@@ -47,12 +64,20 @@ exports.resizeImage = async (req, res) => {
     }
 
     const { width, height, maintainAspect = true } = req.body;
-    const outputPath = await sharpService.resizeImage(req.file.path, width, height, maintainAspect === 'true' || maintainAspect === true);
 
-    res.sendFile(outputPath, () => {
-      fs.unlink(req.file.path, () => { });
-      fs.unlink(outputPath, () => { });
-    });
+    // ✅ Pass buffer instead of file path
+    const outputBuffer = await sharpService.resizeImage(
+      req.file.buffer,
+      width,
+      height,
+      maintainAspect === 'true' || maintainAspect === true
+    );
+
+    // ✅ Send buffer directly
+    res.set('Content-Type', 'image/png');
+    res.set('Content-Disposition', 'attachment; filename="resized.png"');
+    res.send(outputBuffer);
+
   } catch (err) {
     console.error('Resize controller error:', err);
     res.status(500).json({ error: 'Image resize failed', details: err.message });

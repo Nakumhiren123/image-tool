@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js",
-    "vercel-build": "npm rebuild sharp"
+    "vercel-build": "npm install --include=optional sharp"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

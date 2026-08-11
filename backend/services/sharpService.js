@@ -16,12 +16,15 @@ class SharpService {
     const format = targetFormat.toLowerCase();
     const uniqueId = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const outputPath = path.join(outputDir, `converted_${uniqueId}.${format}`);
+    const outputExt = format === 'jpg' ? 'jpg' : format; //
 
     let pipeline = sharp(inputPath);
 
     switch (format) {
       case 'jpg':
-      case 'jpeg':
+        pipeline = pipeline.flatten({ background: '#ffffff' }).jpeg({ quality });
+        break;
+      case 'jpeg':                          // ← add this separate case
         pipeline = pipeline.flatten({ background: '#ffffff' }).jpeg({ quality });
         break;
       case 'png':

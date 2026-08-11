@@ -191,7 +191,7 @@ export async function exportCanvasToBlob(canvas, targetFormat, originalFile, des
     }
   }
 
-  const ext = fmt === 'jpeg' ? 'jpg' : fmt;
+  const ext = fmt;
   const baseName = originalFile?.name ? originalFile.name.replace(/\.[^/.]+$/, '') : 'file';
   const newName = `${baseName}_${suffix}.${ext}`;
   const resultFile = new File([blob], newName, { type: mime });

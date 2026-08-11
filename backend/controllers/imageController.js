@@ -12,8 +12,8 @@ exports.convertImage = async (req, res) => {
 
     res.sendFile(outputPath, () => {
       // Clean up temp files
-      fs.unlink(req.file.path, () => {});
-      fs.unlink(outputPath, () => {});
+      fs.unlink(req.file.path, () => { });
+      fs.unlink(outputPath, () => { });
     });
   } catch (err) {
     console.error('Convert controller error:', err);
@@ -31,8 +31,8 @@ exports.compressImage = async (req, res) => {
     const outputPath = await sharpService.compressImage(req.file.path, parseInt(quality), targetKB ? parseInt(targetKB) : null);
 
     res.sendFile(outputPath, () => {
-      fs.unlink(req.file.path, () => {});
-      fs.unlink(outputPath, () => {});
+      fs.unlink(req.file.path, () => { });
+      fs.unlink(outputPath, () => { });
     });
   } catch (err) {
     console.error('Compress controller error:', err);
@@ -50,8 +50,8 @@ exports.resizeImage = async (req, res) => {
     const outputPath = await sharpService.resizeImage(req.file.path, width, height, maintainAspect === 'true' || maintainAspect === true);
 
     res.sendFile(outputPath, () => {
-      fs.unlink(req.file.path, () => {});
-      fs.unlink(outputPath, () => {});
+      fs.unlink(req.file.path, () => { });
+      fs.unlink(outputPath, () => { });
     });
   } catch (err) {
     console.error('Resize controller error:', err);

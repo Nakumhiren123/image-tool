@@ -1,5 +1,5 @@
 // src/App.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -9,8 +9,9 @@ import AdInterstitialModal from './components/AdInterstitialModal';
 import AuthModal from './components/auth/AuthModal';
 import PricingModal from './components/pricing/PricingModal';
 import AdminPanelModal from './components/admin/AdminPanelModal';
+import ScrollToTop from './components/ScrollToTop';
 
-// Pages
+// Tool pages
 import ConverterPage from './pages/ConverterPage';
 import CompressPage from './pages/CompressPage';
 import ResizePage from './pages/ResizePage';
@@ -21,6 +22,44 @@ import WatermarkPage from './pages/WatermarkPage';
 import NameDatePage from './pages/NameDatePage';
 import MergePage from './pages/MergePage';
 import ConvertersHubPage from './pages/ConvertersHubPage';
+
+// ── Legal & Docs pages (new dedicated full pages) ──────────────────────────
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
+import ApiDocsPage from './pages/ApiDocsPage';
+
+
+function ScrollToTopButton() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > 300);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  if (!visible) return null;
+
+  return (
+    <button
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      style={{
+        position: 'fixed', bottom: 32, right: 28, zIndex: 9999,
+        width: 44, height: 44, borderRadius: '50%',
+        background: 'linear-gradient(135deg, #3B82F6, #0EA5E9)',
+        border: 'none', cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        boxShadow: '0 4px 16px rgba(59,130,246,0.4)',
+        transition: 'transform 0.2s',
+      }}
+      onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+      onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+      title="Back to top"
+    >
+      ↑
+    </button>
+  );
+}
 
 export default function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -46,7 +85,6 @@ export default function App() {
 
         {/* ── Generic converter (user picks format manually) ── */}
         <Route path="/convert" element={<ConverterPage />} />
-
         <Route path="/converters" element={<ConvertersHubPage />} />
 
         {/* ── JPG conversions ── */}
@@ -127,6 +165,11 @@ export default function App() {
         <Route path="/watermark" element={<WatermarkPage />} />
         <Route path="/name-date" element={<NameDatePage />} />
         <Route path="/merge"     element={<MergePage />} />
+
+        {/* ── Legal & Docs dedicated pages ── */}
+        <Route path="/privacy"  element={<PrivacyPage />} />
+        <Route path="/terms"    element={<TermsPage />} />
+        <Route path="/api-docs" element={<ApiDocsPage />} />
       </Routes>
 
       <SEOContentSection />
@@ -155,9 +198,11 @@ export default function App() {
         isOpen={adminModalOpen}
         onClose={() => setAdminModalOpen(false)}
       />
+      <ScrollToTopButton />
     </div>
   );
 }
+
 
 // import React, { useState, useEffect } from 'react';
 // import Navbar from './components/Navbar';

@@ -5,6 +5,7 @@ import { Image, Layers, Minimize2, Maximize2, Crop, RotateCw, Type, Grid, UserCh
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getConvertersGrouped, FORMAT_COLORS } from '../config/converters';
+import ScrollToTop from './ScrollToTop';
 
 // ── Format group order in dropdown ──
 const FORMAT_ORDER = ['JPG', 'PNG', 'JPEG', 'WEBP', 'AVIF', 'GIF', 'BMP', 'HEIC'];
@@ -183,6 +184,8 @@ export default function Navbar({ onOpenAuth, onOpenPricing, onOpenAdmin }) {
 
   return (
     <header className="navbar-header">
+
+      <ScrollToTop />
 
       {/* ── Main Row ── */}
       <div className="navbar-row">

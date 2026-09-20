@@ -693,7 +693,9 @@ async function googleAuth(req, res) {
     logger.error('Google authentication failed', {
       requestId: req.requestId,
       errorCategory: 'AUTHENTICATION',
-      error: err,
+      errorMessage: err?.message,
+      errorName: err?.name,
+      errorStack: err?.stack,
     });
     return res.status(500).json({ success: false, error: 'Google authentication failed.' });
   }

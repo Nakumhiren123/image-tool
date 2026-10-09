@@ -6,6 +6,9 @@
 .env.development
 *.env
 .env.*
+backend/.env
+frontend/.env
+frontend/.env.local
 
 # Dependencies
 node_modules/
@@ -13,6 +16,7 @@ node_modules/
 # Build output
 dist/
 build/
+frontend/dist/
 
 # Logs
 *.log
@@ -26,3 +30,12 @@ Thumbs.db
 # Temporary/generated image files
 uploads/
 output/
+backend/output/
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# AI Agent workflows and config
+.agent/
+.agents/
+.gemini/
+.gsd/

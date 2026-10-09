@@ -141,7 +141,7 @@ export default function WatermarkPage() {
                 </p>
             </div>
 
-            <div className="workspace-grid" style={{ display: 'grid', gridTemplateColumns: items.length ? '1fr 380px' : '1fr', gap: 24, alignItems: 'start' }}>
+            <div className={`workspace-grid ${items.length ? 'workspace-has-panel' : ''}`} style={{ display: 'grid', gap: 24, alignItems: 'start' }}>
 
                 {/* Left Column */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -220,7 +220,7 @@ export default function WatermarkPage() {
                 </div>
             )}
 
-            {previewIndex !== null && <ImagePreview items={items} currentIndex={previewIndex} onNavigate={setPreviewIndex} onClose={() => setPreviewIndex(null)} onDownload={handleDownloadSingle} />}
+            {previewIndex !== null && <ImagePreview items={items} currentIndex={previewIndex} onNavigate={setPreviewIndex} onClose={() => setPreviewIndex(null)} onDownload={handleDownloadSingle} onDownloadAll={handleDownloadZip} />}
 
             <AdInterstitialModal
                 isOpen={adModal.open}

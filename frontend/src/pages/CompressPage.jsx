@@ -101,6 +101,7 @@ export default function CompressPage() {
     };
 
     const handleRemoveItem = (id) => {
+        setActivePreviewIndex(0);
         setItems((prev) => {
             const item = prev.find(i => i.id === id);
             if (item) {
@@ -112,6 +113,7 @@ export default function CompressPage() {
     };
 
     const handleClearAll = () => {
+        setActivePreviewIndex(0);
         items.forEach(i => {
             URL.revokeObjectURL(i.previewUrl);
             if (i.processedResult?.url) URL.revokeObjectURL(i.processedResult.url);
@@ -119,24 +121,43 @@ export default function CompressPage() {
         setItems([]);
     };
 
-    // ── Process (exact compress logic from original App.jsx) ──
+    // ── Process ──
     const handleProcessAll = async () => {
         if (!items.length) return;
         setIsProcessing(true);
+        setErrorMessage('');
         try {
             const updated = [];
+            let hasError = false;
             for (const item of items) {
-                const result = compressMode === 'targetSize'
-                    ? await compressToTargetSize(item.file, compressTargetKB, compressFormat)
-                    : await compressImage(item.file, compressQuality, compressFormat);
-                updated.push({ ...item, status: 'done', processedResult: result });
+                try {
+                    const result = compressMode === 'targetSize'
+                        ? await compressToTargetSize(item.file, compressTargetKB, compressFormat)
+                        : await compressImage(item.file, compressQuality, compressFormat);
+                    updated.push({ ...item, status: 'done', processedResult: result });
+                } catch (itemErr) {
+                    console.error('Failed to compress file:', item.file?.name, itemErr);
+                    hasError = true;
+                    if (itemErr?.upgradeRequired || itemErr?.code === 'BATCH_LIMIT_EXCEEDED' || itemErr?.code === 'FILE_SIZE_EXCEEDED') {
+                        setPricingModalOpen(true);
+                    }
+                    const msg = itemErr.message || 'Processing failed. Please try a different image.';
+                    updated.push({ ...item, status: 'error', errorMsg: msg, error: msg });
+                }
             }
             setItems(updated);
+            if (hasError) {
+                setErrorMessage('One or more files failed to process. Please check the error indicators below.');
+            }
             if (updated.length > 0 && updated[0].processedResult) {
                 setPreviewIndex(0);
             }
         } catch (err) {
             console.error(err);
+            if (err?.upgradeRequired || err?.code === 'BATCH_LIMIT_EXCEEDED' || err?.code === 'FILE_SIZE_EXCEEDED') {
+                setPricingModalOpen(true);
+            }
+            setErrorMessage(err?.message || 'Processing failed. Please try a different image.');
         } finally {
             setIsProcessing(false);
         }
@@ -181,7 +202,8 @@ export default function CompressPage() {
         }
     };
 
-    const firstItem = items[0];
+    const [activePreviewIndex, setActivePreviewIndex] = useState(0);
+    const firstItem = items[activePreviewIndex] || items[0];
     const processedCount = items.filter(i => i.processedResult).length;
 
     return (
@@ -210,10 +232,9 @@ export default function CompressPage() {
 
             {/* ── Two-column workspace ── */}
             <div
-                className="workspace-grid"
+                className={`workspace-grid ${items.length ? 'workspace-has-panel' : ''}`}
                 style={{
                     display: 'grid',
-                    gridTemplateColumns: items.length ? '1fr 380px' : '1fr',
                     gap: 24,
                     alignItems: 'start',
                     transition: 'grid-template-columns 0.3s ease',
@@ -269,8 +290,14 @@ export default function CompressPage() {
                                             fontSize: '0.72rem', fontWeight: 700,
                                             padding: '2px 8px', borderRadius: 99,
                                             border: '1px solid rgba(16,185,129,0.25)',
-                                        }}>
-                                            +{items.length - 1} more
+                                            cursor: 'pointer',
+                                        }}
+                                            onClick={() => {
+                                                const el = document.getElementById('file-list-section');
+                                                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                            }}
+                                        >
+                                            +{items.length - 1} more ↓
                                         </span>
                                     )}
                                 </div>
@@ -368,7 +395,7 @@ export default function CompressPage() {
 
                     {/* File list */}
                     {items.length > 0 && (
-                        <div className="animate-in">
+                        <div className="animate-in" id="file-list-section">
                             <div style={{
                                 display: 'flex', alignItems: 'center',
                                 justifyContent: 'space-between', marginBottom: 12,
@@ -394,8 +421,10 @@ export default function CompressPage() {
                                     <FileCard
                                         key={item.id}
                                         item={item}
+                                        isActive={items.indexOf(item) === activePreviewIndex}
                                         onRemove={handleRemoveItem}
                                         onPreview={(item) => setPreviewIndex(items.indexOf(item))}
+                                        onCardClick={(item) => setActivePreviewIndex(items.indexOf(item))}
                                         onDownloadSingle={handleDownloadSingle}
                                         isProcessing={isProcessing}
                                     />
@@ -468,6 +497,7 @@ export default function CompressPage() {
                     onNavigate={setPreviewIndex}
                     onClose={() => setPreviewIndex(null)}
                     onDownload={handleDownloadSingle}
+                    onDownloadAll={handleDownloadZip}
                 />
             )}
 

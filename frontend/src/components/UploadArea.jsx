@@ -79,7 +79,7 @@ export default function UploadArea({ onFilesSelected, title, subtitle, hasFiles 
       </div>
 
       {/* Text */}
-      <h3 style={{
+      <h2 style={{
         fontFamily: 'var(--font-head)',
         fontWeight: 800,
         fontSize: hasFiles ? '1.15rem' : '1.35rem',
@@ -88,7 +88,7 @@ export default function UploadArea({ onFilesSelected, title, subtitle, hasFiles 
         marginBottom: 6,
       }}>
         {title || defaultTitle}
-      </h3>
+      </h2>
       <p style={{ fontSize: '0.82rem', color: 'var(--text-3)', marginBottom: hasFiles ? 16 : 24 }}>
         {subtitle || (
           hasFiles
@@ -122,8 +122,8 @@ export default function UploadArea({ onFilesSelected, title, subtitle, hasFiles 
             <Clipboard size={12} />
             Ctrl+V paste
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.75rem', color: 'var(--emerald-400, #10b981)', fontWeight: 600 }}>
-            <ShieldCheck size={14} color="#10b981" />
+          <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.75rem', color: '#047857', fontWeight: 600 }}>
+            <ShieldCheck size={14} color="#047857" />
             100% Secure — Files stay in browser
           </span>
         </div>

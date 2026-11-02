@@ -6,7 +6,7 @@ import Footer from './components/Footer';
 import SEOContentSection from './components/seo/SEOContentSection';
 import ScrollToTop from './components/ScrollToTop';
 import { useAuth } from './context/useAuth';
-import ConvertersHubPage from './pages/ConvertersHubPage';
+const ConvertersHubPage = lazy(() => import('./pages/ConvertersHubPage'));
 
 // Lazy-loaded AdSlot (never loaded on homepage)
 const AdSlot = lazy(() => import('./components/AdSlot'));
@@ -210,16 +210,16 @@ export default function App() {
           {/* ── 404 Catch-all route ── */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-
-        <SEOContentSection />
-
-        {!isAdFree && !isHome && (
-          <Suspense fallback={null}>
-            <div style={{ padding: '0 24px 32px' }}><AdSlot type="leaderboard" /></div>
-          </Suspense>
-        )}
-        <Footer />
       </Suspense>
+
+      <SEOContentSection />
+
+      {!isAdFree && !isHome && (
+        <Suspense fallback={null}>
+          <div style={{ padding: '0 24px 32px' }}><AdSlot type="leaderboard" /></div>
+        </Suspense>
+      )}
+      <Footer />
 
       {/* Global Modals — lazy loaded */}
       {adModal.open && (

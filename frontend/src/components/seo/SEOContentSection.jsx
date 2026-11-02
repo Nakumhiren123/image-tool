@@ -97,7 +97,7 @@ export default function SEOContentSection() {
           <h2 style={{ fontSize: '2rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: 12 }}>
             Free Online Image Converter, Target KB Compressor & Resizer
           </h2>
-          <p style={{ fontSize: '1rem', color: '#64748B', maxWidth: 750, margin: '0 auto', lineHeight: 1.6 }}>
+          <p style={{ fontSize: '1rem', color: '#475569', maxWidth: 750, margin: '0 auto', lineHeight: 1.6 }}>
             PicCraft is an all-in-one web image toolkit designed for speed, privacy, and precision. Compress photos to exact sizes (20KB, 50KB, 100KB), convert formats (JPG, PNG, WEBP, AVIF, HEIC), and resize document photos effortlessly.
           </p>
         </div>
@@ -112,7 +112,7 @@ export default function SEOContentSection() {
             <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: 8 }}>
               Target KB Precision Search
             </h3>
-            <p style={{ fontSize: '0.88rem', color: '#64748B', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.88rem', color: '#475569', lineHeight: 1.5 }}>
               Specify exact KB limits for government exams, visa forms, or web uploads. Our image processing engine automatically finds an optimized result for your target size.
             </p>
           </div>
@@ -124,7 +124,7 @@ export default function SEOContentSection() {
             <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: 8 }}>
               Universal Format Conversion
             </h3>
-            <p style={{ fontSize: '0.88rem', color: '#64748B', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.88rem', color: '#475569', lineHeight: 1.5 }}>
               Convert between JPG, PNG, WEBP, AVIF, and supported iPhone HEIC formats with convenient browser-based processing.
             </p>
           </div>
@@ -136,7 +136,7 @@ export default function SEOContentSection() {
             <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', marginBottom: 8 }}>
               Privacy-Focused Processing
             </h3>
-            <p style={{ fontSize: '0.88rem', color: '#64748B', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.88rem', color: '#475569', lineHeight: 1.5 }}>
               Images are processed locally in the browser when supported, or through protected server-side processing for operations that require the backend. We do not intentionally retain processed image files after processing.
             </p>
           </div>
@@ -152,17 +152,17 @@ export default function SEOContentSection() {
             <div style={{ padding: 16, background: '#F8FAFC', borderRadius: 12, border: '1px solid #F1F5F9' }}>
               <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#2563EB', marginBottom: 4 }}>STEP 1</div>
               <h4 style={{ fontSize: '0.98rem', fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>Upload Files</h4>
-              <p style={{ fontSize: '0.82rem', color: '#64748B' }}>Drag and drop images or select files from your computer or phone.</p>
+              <p style={{ fontSize: '0.82rem', color: '#475569' }}>Drag and drop images or select files from your computer or phone.</p>
             </div>
             <div style={{ padding: 16, background: '#F8FAFC', borderRadius: 12, border: '1px solid #F1F5F9' }}>
               <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#2563EB', marginBottom: 4 }}>STEP 2</div>
               <h4 style={{ fontSize: '0.98rem', fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>Choose Mode & Size</h4>
-              <p style={{ fontSize: '0.82rem', color: '#64748B' }}>Select target format (JPG, PNG, WEBP), size in KB, or preset dimensions.</p>
+              <p style={{ fontSize: '0.82rem', color: '#475569' }}>Select target format (JPG, PNG, WEBP), size in KB, or preset dimensions.</p>
             </div>
             <div style={{ padding: 16, background: '#F8FAFC', borderRadius: 12, border: '1px solid #F1F5F9' }}>
               <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#2563EB', marginBottom: 4 }}>STEP 3</div>
               <h4 style={{ fontSize: '0.98rem', fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>Download Results</h4>
-              <p style={{ fontSize: '0.82rem', color: '#64748B' }}>Download high-quality processed images individually or as a single ZIP file.</p>
+              <p style={{ fontSize: '0.82rem', color: '#475569' }}>Download high-quality processed images individually or as a single ZIP file.</p>
             </div>
           </div>
         </div>

@@ -122,11 +122,11 @@ export default function Footer() {
                     to={l.to}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 7,
-                      fontSize: '0.85rem', color: '#64748B', fontWeight: 600,
+                      fontSize: '0.85rem', color: '#475569', fontWeight: 600,
                       textDecoration: 'none', transition: 'color .15s',
                     }}
                     onMouseEnter={e => e.currentTarget.style.color = '#2563EB'}
-                    onMouseLeave={e => e.currentTarget.style.color = '#64748B'}
+                    onMouseLeave={e => e.currentTarget.style.color = '#475569'}
                   >
                     {l.icon} {l.label}
                   </Link>
@@ -137,11 +137,11 @@ export default function Footer() {
                   href="mailto:support@piccraft.app"
                   style={{
                     display: 'flex', alignItems: 'center', gap: 7,
-                    fontSize: '0.85rem', color: '#64748B', fontWeight: 600,
+                    fontSize: '0.85rem', color: '#475569', fontWeight: 600,
                     textDecoration: 'none', transition: 'color .15s',
                   }}
                   onMouseEnter={e => e.currentTarget.style.color = '#2563EB'}
-                  onMouseLeave={e => e.currentTarget.style.color = '#64748B'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#475569'}
                 >
                   <Mail size={13} /> support@piccraft.app
                 </a>

@@ -1,15 +1,16 @@
 // src/pages/CompressPage.jsx
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { useAuth } from '../context/useAuth';
 import UploadArea from '../components/UploadArea';
 import FileCard from '../components/FileCard';
 import CompressionSlider from '../components/controls/CompressionSlider';
 import DownloadButton from '../components/controls/DownloadButton';
 import SEOHead from '../components/seo/SEOHead';
-import ImagePreview from '../components/ImagePreview';
 import AdSlot from '../components/AdSlot';
-import AdInterstitialModal from '../components/AdInterstitialModal';
-import PricingModal from '../components/pricing/PricingModal';
+
+const ImagePreview = lazy(() => import('../components/ImagePreview'));
+const AdInterstitialModal = lazy(() => import('../components/AdInterstitialModal'));
+const PricingModal = lazy(() => import('../components/pricing/PricingModal'));
 import { compressImage, compressToTargetSize, downloadZip, loadImage } from '../lib/imageEngine';
 import { Trash2, ImageIcon } from 'lucide-react';
 
@@ -485,27 +486,33 @@ export default function CompressPage() {
                 </div>
             )}
 
-            {/* ── Modals ── */}
-            <AdInterstitialModal
-                isOpen={adModal.open}
-                onClose={() => setAdModal(m => ({ ...m, open: false }))}
-                onAdComplete={adModal.onComplete || (() => { })}
-                onOpenPricing={() => { setAdModal(m => ({ ...m, open: false })); setPricingModalOpen(true); }}
-                fileName={adModal.fileName}
-            />
+            {/* ── Modals (Code-split to reduce unused JS on initial load) ── */}
+            <Suspense fallback={null}>
+                {adModal.open && (
+                    <AdInterstitialModal
+                        isOpen={adModal.open}
+                        onClose={() => setAdModal(m => ({ ...m, open: false }))}
+                        onAdComplete={adModal.onComplete || (() => { })}
+                        onOpenPricing={() => { setAdModal(m => ({ ...m, open: false })); setPricingModalOpen(true); }}
+                        fileName={adModal.fileName}
+                    />
+                )}
 
-            {previewIndex !== null && (
-                <ImagePreview
-                    items={items}
-                    currentIndex={previewIndex}
-                    onNavigate={setPreviewIndex}
-                    onClose={() => setPreviewIndex(null)}
-                    onDownload={handleDownloadSingle}
-                    onDownloadAll={handleDownloadZip}
-                />
-            )}
+                {previewIndex !== null && (
+                    <ImagePreview
+                        items={items}
+                        currentIndex={previewIndex}
+                        onNavigate={setPreviewIndex}
+                        onClose={() => setPreviewIndex(null)}
+                        onDownload={handleDownloadSingle}
+                        onDownloadAll={handleDownloadZip}
+                    />
+                )}
 
-            <PricingModal isOpen={pricingModalOpen} onClose={() => setPricingModalOpen(false)} />
+                {pricingModalOpen && (
+                    <PricingModal isOpen={pricingModalOpen} onClose={() => setPricingModalOpen(false)} />
+                )}
+            </Suspense>
 
             {/* PRO limit modal */}
             {proLimitModalOpen && (

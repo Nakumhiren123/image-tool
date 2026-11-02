@@ -111,16 +111,26 @@
     });
   </script>
 
-  <!-- Google AdSense — only loaded on pages with ad slots -->
+  <!-- Google AdSense — non-blocking idle load to protect FCP and LCP metrics -->
   <script>
     (function() {
       if (window.location.pathname === '/' || window.location.pathname === '/converters') return;
-      var s = document.createElement('script');
-      s.async = true;
-      s.defer = true;
-      s.crossOrigin = 'anonymous';
-      s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX';
-      document.head.appendChild(s);
+      function loadAdSense() {
+        if (document.querySelector('script[src*="adsbygoogle.js"]')) return;
+        var s = document.createElement('script');
+        s.async = true;
+        s.defer = true;
+        s.crossOrigin = 'anonymous';
+        s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX';
+        document.head.appendChild(s);
+      }
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(loadAdSense, { timeout: 2500 });
+      } else {
+        window.addEventListener('load', function() {
+          setTimeout(loadAdSense, 200);
+        });
+      }
     })();
   </script>
 
@@ -228,7 +238,31 @@
 </head>
 
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <header class="navbar-header" style="height:60px;background:#ffffff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 24px;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900">P</div>
+        <div>
+          <span style="font-weight:800;font-size:1.15rem;color:#0f172a;letter-spacing:-0.02em">PicCraft</span>
+          <p style="font-size:0.72rem;color:#475569;margin:0">All-in-One Toolbox</p>
+        </div>
+      </div>
+    </header>
+    <main class="main-content" style="flex:1;max-width:1280px;margin:0 auto;width:100%;padding:40px 24px">
+      <div class="page-title-area" style="margin-bottom:36px;text-align:center">
+        <h1 style="font-family:'Inter',system-ui,sans-serif;font-weight:900;font-size:clamp(1.8rem,4vw,2.8rem);letter-spacing:-0.03em;color:#0f172a;margin-bottom:10px">
+          <span>Image Compressor</span>
+        </h1>
+        <p style="font-size:0.95rem;color:#475569;max-width:500px;margin:0 auto">
+          Shrink file size with quality control or target KB precision
+        </p>
+      </div>
+      <div style="max-width:800px;margin:0 auto;border:2px dashed #cbd5e1;border-radius:24px;padding:48px 24px;text-align:center;background:#ffffff;box-shadow:0 1px 3px rgba(0,0,0,0.05)">
+        <h2 style="font-size:1.25rem;font-weight:700;color:#0f172a;margin-bottom:8px">Select or Drop Images Here</h2>
+        <p style="font-size:0.875rem;color:#475569">Supports JPG, PNG, WEBP, AVIF, HEIC, GIF, BMP</p>
+      </div>
+    </main>
+  </div>
 
   <noscript>
     <!-- Static HTML Fallback for Crawlers, Bots & SSR Crawlability (TC-001 / TC-020) -->

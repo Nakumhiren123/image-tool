@@ -97,18 +97,26 @@
 
   <!-- Google Fonts Preconnect for Performance Optimization -->
 
-  <!-- Google Analytics — deferred to avoid render blocking -->
+  <!-- Google Analytics & GTM — deferred to idle to eliminate long tasks and protect TBT -->
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-XXXXXXXXXX');
-    window.addEventListener('load', function() {
+    function loadGTM() {
+      if (document.querySelector('script[src*="googletagmanager.com/gtag"]')) return;
       var s = document.createElement('script');
       s.async = true;
       s.src = 'https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX';
       document.head.appendChild(s);
-    });
+    }
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(loadGTM, { timeout: 3500 });
+    } else {
+      window.addEventListener('load', function() {
+        setTimeout(loadGTM, 1500);
+      });
+    }
   </script>
 
   <!-- Google AdSense — non-blocking idle load to protect FCP and LCP metrics -->
@@ -251,9 +259,9 @@
     <main class="main-content" style="flex:1;max-width:1280px;margin:0 auto;width:100%;padding:40px 24px">
       <div class="page-title-area" style="margin-bottom:36px;text-align:center">
         <h1 style="font-family:'Inter',system-ui,sans-serif;font-weight:900;font-size:clamp(1.8rem,4vw,2.8rem);letter-spacing:-0.03em;color:#0f172a;margin-bottom:10px">
-          <span>Image Compressor</span>
+          <span id="tool-hero-title">Image Compressor</span>
         </h1>
-        <p style="font-size:0.95rem;color:#475569;max-width:500px;margin:0 auto">
+        <p id="tool-hero-desc" style="font-size:0.95rem;color:#475569;max-width:500px;margin:0 auto">
           Shrink file size with quality control or target KB precision
         </p>
       </div>
@@ -263,6 +271,41 @@
       </div>
     </main>
   </div>
+  <script>
+    (function() {
+      try {
+        var p = window.location.pathname;
+        var t = document.getElementById('tool-hero-title');
+        var d = document.getElementById('tool-hero-desc');
+        if (!t) return;
+        if (p === '/resize') {
+          t.textContent = 'Image Resizer';
+          if (d) d.textContent = 'Resize to exact dimensions, percentage scale, or target KB/MB file size';
+        } else if (p === '/compress') {
+          t.textContent = 'Image Compressor';
+          if (d) d.textContent = 'Shrink file size with quality control or target KB precision';
+        } else if (p === '/crop') {
+          t.textContent = 'Image Cropper';
+          if (d) d.textContent = 'Crop photos with custom or fixed aspect ratios';
+        } else if (p === '/filter') {
+          t.textContent = 'Photo Filters';
+          if (d) d.textContent = 'Apply color adjustments, vintage, and brightness filters';
+        } else if (p === '/rotate') {
+          t.textContent = 'Rotate Image';
+          if (d) d.textContent = 'Rotate and flip photos with lossless quality';
+        } else if (p === '/watermark') {
+          t.textContent = 'Watermark Tool';
+          if (d) d.textContent = 'Add custom text and image watermarks';
+        } else if (p === '/merge') {
+          t.textContent = 'Image Merger';
+          if (d) d.textContent = 'Combine multiple images vertically or horizontally';
+        } else if (p === '/name-date') {
+          t.textContent = 'Name & Date Stamp';
+          if (d) d.textContent = 'Add official name and date stamps for exams and documents';
+        }
+      } catch (e) {}
+    })();
+  </script>
 
   <noscript>
     <!-- Static HTML Fallback for Crawlers, Bots & SSR Crawlability (TC-001 / TC-020) -->

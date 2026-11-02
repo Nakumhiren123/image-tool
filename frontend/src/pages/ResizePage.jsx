@@ -1,16 +1,18 @@
 // src/pages/ResizePage.jsx
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { useAuth } from '../context/useAuth';
 import UploadArea from '../components/UploadArea';
-import FileCard from '../components/FileCard';
-import ResizeControls from '../components/controls/ResizeControls';
-import DownloadButton from '../components/controls/DownloadButton';
 import SEOHead from '../components/seo/SEOHead';
-import ImagePreview from '../components/ImagePreview';
 import AdSlot from '../components/AdSlot';
 import { resizeImage, compressToTargetSize, downloadZip, loadImage } from '../lib/imageEngine';
 import { Trash2, ImageIcon } from 'lucide-react';
-import AdInterstitialModal from '../components/AdInterstitialModal';
+
+const FileCard = lazy(() => import('../components/FileCard'));
+const ResizeControls = lazy(() => import('../components/controls/ResizeControls'));
+const DownloadButton = lazy(() => import('../components/controls/DownloadButton'));
+const ImagePreview = lazy(() => import('../components/ImagePreview'));
+const AdInterstitialModal = lazy(() => import('../components/AdInterstitialModal'));
+const PricingModal = lazy(() => import('../components/pricing/PricingModal'));
 
 export default function ResizePage() {
     const { isPro, isAdFree } = useAuth();
@@ -20,7 +22,7 @@ export default function ResizePage() {
     const [previewIndex, setPreviewIndex] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [proLimitModalOpen, setProLimitModalOpen] = useState(false);
-    const [, setPricingModalOpen] = useState(false);
+    const [pricingModalOpen, setPricingModalOpen] = useState(false);
     const [adModal, setAdModal] = useState({ open: false, onComplete: null, fileName: '' });
 
     // Resize-specific state
@@ -224,11 +226,13 @@ export default function ResizePage() {
                                 <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-1)' }}>{items.length} Image{items.length !== 1 ? 's' : ''} Selected</span>
                                 <button onClick={handleClearAll} className="btn btn-danger btn-sm" style={{ gap: 6 }}><Trash2 size={13} /> Clear All</button>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 480, overflowY: 'auto', paddingRight: 4 }}>
-                                {items.map(item => (
-                                    <FileCard key={item.id} item={item} onRemove={handleRemoveItem} onPreview={() => setPreviewIndex(items.indexOf(item))} onDownloadSingle={handleDownloadSingle} isProcessing={isProcessing} />
-                                ))}
-                            </div>
+                            <Suspense fallback={null}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 480, overflowY: 'auto', paddingRight: 4 }}>
+                                    {items.map(item => (
+                                        <FileCard key={item.id} item={item} onRemove={handleRemoveItem} onPreview={() => setPreviewIndex(items.indexOf(item))} onDownloadSingle={handleDownloadSingle} isProcessing={isProcessing} />
+                                    ))}
+                                </div>
+                            </Suspense>
                         </div>
                     )}
                 </div>
@@ -237,24 +241,26 @@ export default function ResizePage() {
                 {items.length > 0 && (
                     <div className="settings-panel" style={{ position: 'sticky', top: 90, display: 'flex', flexDirection: 'column', gap: 16 }}>
                         <div style={{ background: 'var(--bg-card)', backdropFilter: 'blur(20px)', border: '1px solid var(--border)', borderRadius: 20, padding: 24, display: 'flex', flexDirection: 'column', gap: 24 }}>
-                            <ResizeControls
-                                width={resizeWidth} setWidth={setResizeWidth}
-                                height={resizeHeight} setHeight={setResizeHeight}
-                                maintainAspect={maintainAspect} setMaintainAspect={setMaintainAspect}
-                                originalWidth={firstItem?.width} originalHeight={firstItem?.height}
-                                resizeMode={resizeMode} setResizeMode={setResizeMode}
-                                targetFileSize={resizeTargetSize} setTargetFileSize={setResizeTargetSize}
-                                targetFileUnit={resizeTargetUnit} setTargetFileUnit={setResizeTargetUnit}
-                            />
-                            <hr className="divider" />
-                            <DownloadButton
-                                onProcessAll={handleProcessAll}
-                                onDownloadZip={handleDownloadZip}
-                                isProcessing={isProcessing}
-                                processedCount={processedCount}
-                                totalCount={items.length}
-                                activeTool="resize"
-                            />
+                            <Suspense fallback={null}>
+                                <ResizeControls
+                                    width={resizeWidth} setWidth={setResizeWidth}
+                                    height={resizeHeight} setHeight={setResizeHeight}
+                                    maintainAspect={maintainAspect} setMaintainAspect={setMaintainAspect}
+                                    originalWidth={firstItem?.width} originalHeight={firstItem?.height}
+                                    resizeMode={resizeMode} setResizeMode={setResizeMode}
+                                    targetFileSize={resizeTargetSize} setTargetFileSize={setResizeTargetSize}
+                                    targetFileUnit={resizeTargetUnit} setTargetFileUnit={setResizeTargetUnit}
+                                />
+                                <hr className="divider" />
+                                <DownloadButton
+                                    onProcessAll={handleProcessAll}
+                                    onDownloadZip={handleDownloadZip}
+                                    isProcessing={isProcessing}
+                                    processedCount={processedCount}
+                                    totalCount={items.length}
+                                    activeTool="resize"
+                                />
+                            </Suspense>
                         </div>
                         {!isAdFree && <AdSlot type="rectangle" />}
                     </div>
@@ -269,40 +275,49 @@ export default function ResizePage() {
                 </div>
             )}
 
-            {/* Preview Modal */}
-            {previewIndex !== null && (
-                <ImagePreview items={items} currentIndex={previewIndex} onNavigate={setPreviewIndex} onClose={() => setPreviewIndex(null)} onDownload={handleDownloadSingle} onDownloadAll={handleDownloadZip} />
-            )}
+            {/* Lazy-loaded Modals */}
+            <Suspense fallback={null}>
+                {previewIndex !== null && (
+                    <ImagePreview items={items} currentIndex={previewIndex} onNavigate={setPreviewIndex} onClose={() => setPreviewIndex(null)} onDownload={handleDownloadSingle} onDownloadAll={handleDownloadZip} />
+                )}
 
-            {/* Pro Limit Modal */}
-            {proLimitModalOpen && (
-                <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-                    <div style={{ background: '#FFFFFF', borderRadius: 24, maxWidth: 460, width: '100%', padding: 32, textAlign: 'center', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '1px solid #E2E8F0' }}>
-                        <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#FEF3C7', color: '#D97706', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 32 }}>⚡</div>
-                        <h3 style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.4rem', color: '#0F172A', marginBottom: 12 }}>Free Plan Upload Limit</h3>
-                        <p style={{ fontSize: '0.92rem', color: '#475569', lineHeight: 1.6, marginBottom: 24 }}>
-                            You cannot add more than <strong>5 files at a time</strong> on the Free Plan. Upgrade to <strong>PRO</strong> to process with more files!
-                        </p>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                            <button onClick={() => { setProLimitModalOpen(false); setPricingModalOpen(true); }} style={{ padding: '14px 24px', borderRadius: 14, background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: '#fff', fontWeight: 800, fontSize: '0.95rem', border: 'none', cursor: 'pointer' }}>
-                                🚀 Upgrade to PRO Now
-                            </button>
-                            <button onClick={() => setProLimitModalOpen(false)} style={{ padding: '10px 20px', borderRadius: 12, background: 'transparent', color: '#64748B', fontWeight: 700, fontSize: '0.85rem', border: 'none', cursor: 'pointer' }}>
-                                Continue with 5 Files (Free)
-                            </button>
+                {/* Pro Limit Modal */}
+                {proLimitModalOpen && (
+                    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+                        <div style={{ background: '#FFFFFF', borderRadius: 24, maxWidth: 460, width: '100%', padding: 32, textAlign: 'center', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '1px solid #E2E8F0' }}>
+                            <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#FEF3C7', color: '#D97706', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 32 }}>⚡</div>
+                            <h3 style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.4rem', color: '#0F172A', marginBottom: 12 }}>Free Plan Upload Limit</h3>
+                            <p style={{ fontSize: '0.92rem', color: '#475569', lineHeight: 1.6, marginBottom: 24 }}>
+                                You cannot add more than <strong>5 files at a time</strong> on the Free Plan. Upgrade to <strong>PRO</strong> to process with more files!
+                            </p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                <button onClick={() => { setProLimitModalOpen(false); setPricingModalOpen(true); }} style={{ padding: '14px 24px', borderRadius: 14, background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: '#fff', fontWeight: 800, fontSize: '0.95rem', border: 'none', cursor: 'pointer' }}>
+                                    🚀 Upgrade to PRO Now
+                                </button>
+                                <button onClick={() => setProLimitModalOpen(false)} style={{ padding: '10px 20px', borderRadius: 12, background: 'transparent', color: '#64748B', fontWeight: 700, fontSize: '0.85rem', border: 'none', cursor: 'pointer' }}>
+                                    Continue with 5 Files (Free)
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Ad Interstitial Modal */}
-            <AdInterstitialModal
-                isOpen={adModal.open}
-                onClose={() => setAdModal(m => ({ ...m, open: false }))}
-                onAdComplete={adModal.onComplete || (() => { })}
-                onOpenPricing={() => setAdModal(m => ({ ...m, open: false }))}
-                fileName={adModal.fileName}
-            />
+                {/* Ad Interstitial Modal */}
+                {adModal.open && (
+                    <AdInterstitialModal
+                        isOpen={adModal.open}
+                        onClose={() => setAdModal(m => ({ ...m, open: false }))}
+                        onAdComplete={adModal.onComplete || (() => { })}
+                        onOpenPricing={() => { setAdModal(m => ({ ...m, open: false })); setPricingModalOpen(true); }}
+                        fileName={adModal.fileName}
+                    />
+                )}
+
+                {/* Pricing Modal */}
+                {pricingModalOpen && (
+                    <PricingModal isOpen={pricingModalOpen} onClose={() => setPricingModalOpen(false)} />
+                )}
+            </Suspense>
 
         </main>
     );

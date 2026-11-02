@@ -202,6 +202,7 @@ export default function AdSlot({ type = 'leaderboard', adClient = null, adSlot =
           margin: '16px auto',
           textAlign: 'center',
           overflow: 'hidden',
+          contain: 'content',
         }}
       >
         <ins
@@ -230,6 +231,7 @@ export default function AdSlot({ type = 'leaderboard', adClient = null, adSlot =
         width: containerWidth,
         maxWidth: w,
         height: h,
+        contain: 'content',
         margin: '0 auto',
         borderRadius: 12,
         border: '1.5px dashed #CBD5E1',

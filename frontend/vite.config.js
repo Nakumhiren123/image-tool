@@ -2,8 +2,20 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
+function nonBlockingCss() {
+  return {
+    name: 'non-blocking-css',
+    transformIndexHtml(html) {
+      return html.replace(
+        /<link rel="stylesheet" crossorigin href="(\/assets\/[^"]+\.css)">/g,
+        '<link rel="preload" as="style" crossorigin href="$1" onload="this.onload=null;this.rel=\'stylesheet\'"><noscript><link rel="stylesheet" crossorigin href="$1"></noscript>'
+      );
+    }
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), nonBlockingCss()],
   server: { historyApiFallback: true },
   build: {
     target: 'esnext',
@@ -12,6 +24,18 @@ export default defineConfig({
     cssCodeSplit: true,
     reportCompressedSize: false,
     chunkSizeWarningLimit: 1000,
+    modulePreload: {
+      polyfill: true,
+      resolveDependencies(filename, deps) {
+        return deps.filter(
+          dep =>
+            !dep.includes('vendor-pdf') &&
+            !dep.includes('vendor-heic') &&
+            !dep.includes('vendor-docx') &&
+            !dep.includes('vendor-jszip')
+        );
+      }
+    },
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -19,6 +43,8 @@ export default defineConfig({
             return 'vendor-react';
           if (id.includes('node_modules/@react-oauth'))
             return 'vendor-oauth';
+          if (id.includes('node_modules/jspdf') || id.includes('node_modules/html2canvas') || id.includes('node_modules/dompurify'))
+            return 'vendor-pdf';
           if (id.includes('node_modules/heic2any'))
             return 'vendor-heic';
           if (id.includes('node_modules/docx'))

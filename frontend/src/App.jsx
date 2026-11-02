@@ -1,9 +1,9 @@
 // src/App.jsx
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import SEOContentSection from './components/seo/SEOContentSection';
+const SEOContentSection = lazy(() => import('./components/seo/SEOContentSection'));
 import ScrollToTop from './components/ScrollToTop';
 import { useAuth } from './context/useAuth';
 const ConvertersHubPage = lazy(() => import('./pages/ConvertersHubPage'));
@@ -38,9 +38,23 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 function ScrollToTopButton() {
   const [visible, setVisible] = useState(false);
+  const visibleRef = useRef(false);
 
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 300);
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const shouldShow = window.scrollY > 300;
+          if (shouldShow !== visibleRef.current) {
+            visibleRef.current = shouldShow;
+            setVisible(shouldShow);
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -65,6 +79,56 @@ function ScrollToTopButton() {
     >
       ↑
     </button>
+  );
+}
+
+function ToolRouteFallback() {
+  const location = useLocation();
+  const path = location.pathname;
+  let title = 'PicCraft Image Tools';
+  let desc = 'Free online image conversion, compression, and photo editing tools';
+
+  if (path === '/resize') {
+    title = 'Image Resizer';
+    desc = 'Resize to exact dimensions, percentage scale, or target KB/MB file size';
+  } else if (path === '/compress') {
+    title = 'Image Compressor';
+    desc = 'Shrink file size with quality control or target KB precision';
+  } else if (path === '/crop') {
+    title = 'Image Cropper';
+    desc = 'Crop photos with custom or fixed aspect ratios';
+  } else if (path === '/filter') {
+    title = 'Photo Filters';
+    desc = 'Apply color adjustments, vintage, and brightness filters';
+  } else if (path === '/rotate') {
+    title = 'Rotate Image';
+    desc = 'Rotate and flip photos with lossless quality';
+  } else if (path === '/watermark') {
+    title = 'Watermark Tool';
+    desc = 'Add custom text and image watermarks';
+  } else if (path === '/merge') {
+    title = 'Image Merger';
+    desc = 'Combine multiple images vertically or horizontally';
+  } else if (path === '/name-date') {
+    title = 'Name & Date Stamp';
+    desc = 'Add official name and date stamps for exams and documents';
+  }
+
+  return (
+    <main className="main-content" style={{ flex: 1, maxWidth: 1280, margin: '0 auto', width: '100%', padding: '40px 24px' }}>
+      <div className="page-title-area" style={{ marginBottom: 36, textAlign: 'center' }}>
+        <h1 style={{ fontFamily: 'var(--font-head)', fontWeight: 900, fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', letterSpacing: '-0.03em', color: 'var(--text-1)', marginBottom: 10 }}>
+          <span className="grad-text">{title}</span>
+        </h1>
+        <p style={{ fontSize: '0.95rem', color: 'var(--text-3)', maxWidth: 500, margin: '0 auto' }}>
+          {desc}
+        </p>
+      </div>
+      <div style={{ maxWidth: 800, margin: '0 auto', border: '2px dashed #cbd5e1', borderRadius: 24, padding: '48px 24px', textAlign: 'center', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>Select or Drop Images Here</h2>
+        <p style={{ fontSize: '0.875rem', color: '#475569' }}>Supports JPG, PNG, WEBP, AVIF, HEIC, GIF, BMP</p>
+      </div>
+    </main>
   );
 }
 
@@ -99,12 +163,7 @@ export default function App() {
         </Suspense>
       )}
 
-      <Suspense fallback={
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 14 }}>
-          <div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid rgba(99,102,241,0.2)', borderTopColor: 'var(--primary)', animation: 'spin 0.8s linear infinite' }} />
-          <span style={{ fontSize: '0.9rem', color: 'var(--text-3)', fontWeight: 600 }}>Loading PicCraft...</span>
-        </div>
-      }>
+      <Suspense fallback={<ToolRouteFallback />}>
         <Routes>
           {/* Home / Converters hub */}
           <Route path="/" element={<ConvertersHubPage />} />
@@ -212,7 +271,9 @@ export default function App() {
         </Routes>
       </Suspense>
 
-      <SEOContentSection />
+      <Suspense fallback={null}>
+        <SEOContentSection />
+      </Suspense>
 
       {!isAdFree && !isHome && (
         <Suspense fallback={null}>

@@ -1,22 +1,23 @@
 // src/pages/ConverterPage.jsx
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import UploadArea from '../components/UploadArea';
-import FileCard from '../components/FileCard';
-import ConvertOptions from '../components/controls/ConvertOptions';
-import DownloadButton from '../components/controls/DownloadButton';
 import SEOHead from '../components/seo/SEOHead';
-import ImagePreview from '../components/ImagePreview';
 import AdSlot from '../components/AdSlot';
-import AdInterstitialModal from '../components/AdInterstitialModal';
-import PricingModal from '../components/pricing/PricingModal';
 import {
     convertImage,
     downloadZip,
     loadImage,
 } from '../lib/imageEngine';
 import { Trash2, ImageIcon } from 'lucide-react';
+
+const FileCard = lazy(() => import('../components/FileCard'));
+const ConvertOptions = lazy(() => import('../components/controls/ConvertOptions'));
+const DownloadButton = lazy(() => import('../components/controls/DownloadButton'));
+const ImagePreview = lazy(() => import('../components/ImagePreview'));
+const AdInterstitialModal = lazy(() => import('../components/AdInterstitialModal'));
+const PricingModal = lazy(() => import('../components/pricing/PricingModal'));
 
 
 export default function ConverterPage({ from, to }) {
@@ -394,28 +395,33 @@ export default function ConverterPage({ from, to }) {
             )}
 
             {/* Preview modal */}
-            {previewIndex !== null && (
-                <ImagePreview
-                    items={items}
-                    currentIndex={previewIndex}
-                    onNavigate={setPreviewIndex}
-                    onClose={() => setPreviewIndex(null)}
-                    onDownload={handleDownloadSingle}
-                    onDownloadAll={handleDownloadZip}
-                />
-            )}
+            {/* Lazy-loaded Modals */}
+            <Suspense fallback={null}>
+                {previewIndex !== null && (
+                    <ImagePreview
+                        items={items}
+                        currentIndex={previewIndex}
+                        onNavigate={setPreviewIndex}
+                        onClose={() => setPreviewIndex(null)}
+                        onDownload={handleDownloadSingle}
+                        onDownloadAll={handleDownloadZip}
+                    />
+                )}
 
-            {/* Ad modal */}
-            <AdInterstitialModal
-                isOpen={adModal.open}
-                onClose={() => setAdModal(m => ({ ...m, open: false }))}
-                onAdComplete={adModal.onComplete || (() => { })}
-                onOpenPricing={() => { setAdModal(m => ({ ...m, open: false })); setPricingModalOpen(true); }}
-                fileName={adModal.fileName}
-            />
+                {adModal.open && (
+                    <AdInterstitialModal
+                        isOpen={adModal.open}
+                        onClose={() => setAdModal(m => ({ ...m, open: false }))}
+                        onAdComplete={adModal.onComplete || (() => { })}
+                        onOpenPricing={() => { setAdModal(m => ({ ...m, open: false })); setPricingModalOpen(true); }}
+                        fileName={adModal.fileName}
+                    />
+                )}
 
-            {/* Pricing modal */}
-            <PricingModal isOpen={pricingModalOpen} onClose={() => setPricingModalOpen(false)} />
+                {pricingModalOpen && (
+                    <PricingModal isOpen={pricingModalOpen} onClose={() => setPricingModalOpen(false)} />
+                )}
+            </Suspense>
 
             {/* PRO limit modal */}
             {proLimitModalOpen && (

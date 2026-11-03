@@ -284,24 +284,24 @@
         } else if (p === '/compress') {
           t.textContent = 'Image Compressor';
           if (d) d.textContent = 'Shrink file size with quality control or target KB precision';
+        } else if (p === '/rotate') {
+          t.textContent = 'Rotate & Flip';
+          if (d) d.textContent = 'Rotate 90° / 180° or flip on any axis';
+        } else if (p === '/watermark') {
+          t.textContent = 'Add Watermark';
+          if (d) d.textContent = 'Overlay text or logo watermark with full control over opacity, size & position';
+        } else if (p === '/merge') {
+          t.textContent = 'Merge Images';
+          if (d) d.textContent = 'Combine multiple images horizontally or vertically';
         } else if (p === '/crop') {
           t.textContent = 'Image Cropper';
-          if (d) d.textContent = 'Crop photos with custom or fixed aspect ratios';
+          if (d) d.textContent = 'Interactive freeform or aspect ratio cropping';
         } else if (p === '/filter') {
-          t.textContent = 'Photo Filters';
-          if (d) d.textContent = 'Apply color adjustments, vintage, and brightness filters';
-        } else if (p === '/rotate') {
-          t.textContent = 'Rotate Image';
-          if (d) d.textContent = 'Rotate and flip photos with lossless quality';
-        } else if (p === '/watermark') {
-          t.textContent = 'Watermark Tool';
-          if (d) d.textContent = 'Add custom text and image watermarks';
-        } else if (p === '/merge') {
-          t.textContent = 'Image Merger';
-          if (d) d.textContent = 'Combine multiple images vertically or horizontally';
+          t.textContent = 'Photo Filters & Color Effects';
+          if (d) d.textContent = 'Add vintage, black & white, blur, saturation, or contrast adjustments';
         } else if (p === '/name-date') {
-          t.textContent = 'Name & Date Stamp';
-          if (d) d.textContent = 'Add official name and date stamps for exams and documents';
+          t.textContent = 'Name & Date Banner';
+          if (d) d.textContent = 'Add name and date of birth/photo banner for exam forms & ID photos';
         }
       } catch (e) {}
     })();

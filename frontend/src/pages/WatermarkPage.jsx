@@ -1,16 +1,18 @@
 // src/pages/WatermarkPage.jsx
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { useAuth } from '../context/useAuth';
 import UploadArea from '../components/UploadArea';
-import FileCard from '../components/FileCard';
-import WatermarkControls from '../components/controls/WatermarkControls';
-import DownloadButton from '../components/controls/DownloadButton';
 import SEOHead from '../components/seo/SEOHead';
-import ImagePreview from '../components/ImagePreview';
 import AdSlot from '../components/AdSlot';
-import AdInterstitialModal from '../components/AdInterstitialModal';
 import { watermarkImage, downloadZip, loadImage } from '../lib/imageEngine';
 import { Trash2, ImageIcon } from 'lucide-react';
+
+const FileCard = lazy(() => import('../components/FileCard'));
+const WatermarkControls = lazy(() => import('../components/controls/WatermarkControls'));
+const DownloadButton = lazy(() => import('../components/controls/DownloadButton'));
+const ImagePreview = lazy(() => import('../components/ImagePreview'));
+const AdInterstitialModal = lazy(() => import('../components/AdInterstitialModal'));
+const PricingModal = lazy(() => import('../components/pricing/PricingModal'));
 
 export default function WatermarkPage() {
     const { isPro, isAdFree } = useAuth();
@@ -20,7 +22,7 @@ export default function WatermarkPage() {
     const [previewIndex, setPreviewIndex] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [proLimitModalOpen, setProLimitModalOpen] = useState(false);
-    const [, setPricingModalOpen] = useState(false);
+    const [pricingModalOpen, setPricingModalOpen] = useState(false);
     const [adModal, setAdModal] = useState({ open: false, onComplete: null, fileName: '' });
 
     // Watermark-specific state — exact from original App.jsx
@@ -191,11 +193,13 @@ export default function WatermarkPage() {
                                 </div>
                                 <button onClick={handleClearAll} className="btn btn-danger btn-sm" style={{ gap: 6 }}><Trash2 size={13} /> Clear All</button>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 480, overflowY: 'auto', paddingRight: 4 }}>
-                                {items.map(item => (
-                                    <FileCard key={item.id} item={item} onRemove={handleRemoveItem} onPreview={() => setPreviewIndex(items.indexOf(item))} onDownloadSingle={handleDownloadSingle} isProcessing={isProcessing} />
-                                ))}
-                            </div>
+                            <Suspense fallback={null}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 480, overflowY: 'auto', paddingRight: 4 }}>
+                                    {items.map(item => (
+                                        <FileCard key={item.id} item={item} onRemove={handleRemoveItem} onPreview={() => setPreviewIndex(items.indexOf(item))} onDownloadSingle={handleDownloadSingle} isProcessing={isProcessing} />
+                                    ))}
+                                </div>
+                            </Suspense>
                         </div>
                     )}
                 </div>
@@ -204,9 +208,11 @@ export default function WatermarkPage() {
                 {items.length > 0 && (
                     <div className="settings-panel" style={{ position: 'sticky', top: 90, display: 'flex', flexDirection: 'column', gap: 16 }}>
                         <div style={{ background: 'var(--bg-card)', backdropFilter: 'blur(20px)', border: '1px solid var(--border)', borderRadius: 20, padding: 24, display: 'flex', flexDirection: 'column', gap: 24 }}>
-                            <WatermarkControls watermarkConfig={watermarkConfig} setWatermarkConfig={setWatermarkConfig} />
-                            <hr className="divider" />
-                            <DownloadButton onProcessAll={handleProcessAll} onDownloadZip={handleDownloadZip} isProcessing={isProcessing} processedCount={processedCount} totalCount={items.length} activeTool="watermark" />
+                            <Suspense fallback={null}>
+                                <WatermarkControls watermarkConfig={watermarkConfig} setWatermarkConfig={setWatermarkConfig} />
+                                <hr className="divider" />
+                                <DownloadButton onProcessAll={handleProcessAll} onDownloadZip={handleDownloadZip} isProcessing={isProcessing} processedCount={processedCount} totalCount={items.length} activeTool="watermark" />
+                            </Suspense>
                         </div>
                         {!isAdFree && <AdSlot type="rectangle" />}
                     </div>
@@ -220,15 +226,24 @@ export default function WatermarkPage() {
                 </div>
             )}
 
-            {previewIndex !== null && <ImagePreview items={items} currentIndex={previewIndex} onNavigate={setPreviewIndex} onClose={() => setPreviewIndex(null)} onDownload={handleDownloadSingle} onDownloadAll={handleDownloadZip} />}
+            {/* Lazy-loaded Modals */}
+            <Suspense fallback={null}>
+                {previewIndex !== null && <ImagePreview items={items} currentIndex={previewIndex} onNavigate={setPreviewIndex} onClose={() => setPreviewIndex(null)} onDownload={handleDownloadSingle} onDownloadAll={handleDownloadZip} />}
 
-            <AdInterstitialModal
-                isOpen={adModal.open}
-                onClose={() => setAdModal(m => ({ ...m, open: false }))}
-                onAdComplete={adModal.onComplete || (() => { })}
-                onOpenPricing={() => { setAdModal(m => ({ ...m, open: false })); setPricingModalOpen(true); }}
-                fileName={adModal.fileName}
-            />
+                {adModal.open && (
+                    <AdInterstitialModal
+                        isOpen={adModal.open}
+                        onClose={() => setAdModal(m => ({ ...m, open: false }))}
+                        onAdComplete={adModal.onComplete || (() => { })}
+                        onOpenPricing={() => { setAdModal(m => ({ ...m, open: false })); setPricingModalOpen(true); }}
+                        fileName={adModal.fileName}
+                    />
+                )}
+
+                {pricingModalOpen && (
+                    <PricingModal isOpen={pricingModalOpen} onClose={() => setPricingModalOpen(false)} />
+                )}
+            </Suspense>
 
             {proLimitModalOpen && (
                 <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>

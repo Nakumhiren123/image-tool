@@ -94,24 +94,24 @@ function ToolRouteFallback() {
   } else if (path === '/compress') {
     title = 'Image Compressor';
     desc = 'Shrink file size with quality control or target KB precision';
+  } else if (path === '/rotate') {
+    title = 'Rotate & Flip';
+    desc = 'Rotate 90° / 180° or flip on any axis';
+  } else if (path === '/watermark') {
+    title = 'Add Watermark';
+    desc = 'Overlay text or logo watermark with full control over opacity, size & position';
+  } else if (path === '/merge') {
+    title = 'Merge Images';
+    desc = 'Combine multiple images horizontally or vertically';
   } else if (path === '/crop') {
     title = 'Image Cropper';
-    desc = 'Crop photos with custom or fixed aspect ratios';
+    desc = 'Interactive freeform or aspect ratio cropping';
   } else if (path === '/filter') {
-    title = 'Photo Filters';
-    desc = 'Apply color adjustments, vintage, and brightness filters';
-  } else if (path === '/rotate') {
-    title = 'Rotate Image';
-    desc = 'Rotate and flip photos with lossless quality';
-  } else if (path === '/watermark') {
-    title = 'Watermark Tool';
-    desc = 'Add custom text and image watermarks';
-  } else if (path === '/merge') {
-    title = 'Image Merger';
-    desc = 'Combine multiple images vertically or horizontally';
+    title = 'Photo Filters & Color Effects';
+    desc = 'Add vintage, black & white, blur, saturation, or contrast adjustments';
   } else if (path === '/name-date') {
-    title = 'Name & Date Stamp';
-    desc = 'Add official name and date stamps for exams and documents';
+    title = 'Name & Date Banner';
+    desc = 'Add name and date of birth/photo banner for exam forms & ID photos';
   }
 
   return (

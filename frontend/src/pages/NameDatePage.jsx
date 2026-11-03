@@ -1,16 +1,18 @@
 // src/pages/NameDatePage.jsx
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { useAuth } from '../context/useAuth';
 import UploadArea from '../components/UploadArea';
-import FileCard from '../components/FileCard';
-import NameDateControls from '../components/controls/NameDateControls';
-import DownloadButton from '../components/controls/DownloadButton';
 import SEOHead from '../components/seo/SEOHead';
-import ImagePreview from '../components/ImagePreview';
 import AdSlot from '../components/AdSlot';
-import AdInterstitialModal from '../components/AdInterstitialModal';
 import { addNameAndDate, downloadZip, loadImage } from '../lib/imageEngine';
 import { Trash2, ImageIcon } from 'lucide-react';
+
+const FileCard = lazy(() => import('../components/FileCard'));
+const NameDateControls = lazy(() => import('../components/controls/NameDateControls'));
+const DownloadButton = lazy(() => import('../components/controls/DownloadButton'));
+const ImagePreview = lazy(() => import('../components/ImagePreview'));
+const AdInterstitialModal = lazy(() => import('../components/AdInterstitialModal'));
+const PricingModal = lazy(() => import('../components/pricing/PricingModal'));
 
 export default function NameDatePage() {
     const { isPro, isAdFree } = useAuth();
@@ -20,7 +22,7 @@ export default function NameDatePage() {
     const [previewIndex, setPreviewIndex] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [proLimitModalOpen, setProLimitModalOpen] = useState(false);
-    const [, setPricingModalOpen] = useState(false);
+    const [pricingModalOpen, setPricingModalOpen] = useState(false);
     const [adModal, setAdModal] = useState({ open: false, onComplete: null, fileName: '' });
 
     // NameDate-specific state — exact from original App.jsx
@@ -222,24 +224,33 @@ export default function NameDatePage() {
                 </div>
             )}
 
-            {previewIndex !== null && (
-                <ImagePreview
-                    items={items}
-                    currentIndex={previewIndex}
-                    onNavigate={setPreviewIndex}
-                    onClose={() => setPreviewIndex(null)}
-                    onDownload={handleDownloadSingle}
-                    onDownloadAll={handleDownloadZip}
-                />
-            )}
+            {/* Lazy-loaded Modals */}
+            <Suspense fallback={null}>
+                {previewIndex !== null && (
+                    <ImagePreview
+                        items={items}
+                        currentIndex={previewIndex}
+                        onNavigate={setPreviewIndex}
+                        onClose={() => setPreviewIndex(null)}
+                        onDownload={handleDownloadSingle}
+                        onDownloadAll={handleDownloadZip}
+                    />
+                )}
 
-            <AdInterstitialModal
-                isOpen={adModal.open}
-                onClose={() => setAdModal(m => ({ ...m, open: false }))}
-                onAdComplete={adModal.onComplete || (() => { })}
-                onOpenPricing={() => { setAdModal(m => ({ ...m, open: false })); setPricingModalOpen(true); }}
-                fileName={adModal.fileName}
-            />
+                {adModal.open && (
+                    <AdInterstitialModal
+                        isOpen={adModal.open}
+                        onClose={() => setAdModal(m => ({ ...m, open: false }))}
+                        onAdComplete={adModal.onComplete || (() => { })}
+                        onOpenPricing={() => { setAdModal(m => ({ ...m, open: false })); setPricingModalOpen(true); }}
+                        fileName={adModal.fileName}
+                    />
+                )}
+
+                {pricingModalOpen && (
+                    <PricingModal isOpen={pricingModalOpen} onClose={() => setPricingModalOpen(false)} />
+                )}
+            </Suspense>
 
             {proLimitModalOpen && (
                 <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>

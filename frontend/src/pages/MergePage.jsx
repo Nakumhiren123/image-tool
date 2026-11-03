@@ -1,17 +1,18 @@
 // src/pages/MergePage.jsx
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { useAuth } from '../context/useAuth';
 import UploadArea from '../components/UploadArea';
-import FileCard from '../components/FileCard';
-import MergeControls from '../components/controls/MergeControls';
-import DownloadButton from '../components/controls/DownloadButton';
 import SEOHead from '../components/seo/SEOHead';
-import ImagePreview from '../components/ImagePreview';
 import AdSlot from '../components/AdSlot';
-import AdInterstitialModal from '../components/AdInterstitialModal';
-import PricingModal from '../components/pricing/PricingModal';
 import { mergeImages, loadImage } from '../lib/imageEngine';
 import { Trash2, ImageIcon } from 'lucide-react';
+
+const FileCard = lazy(() => import('../components/FileCard'));
+const MergeControls = lazy(() => import('../components/controls/MergeControls'));
+const DownloadButton = lazy(() => import('../components/controls/DownloadButton'));
+const ImagePreview = lazy(() => import('../components/ImagePreview'));
+const AdInterstitialModal = lazy(() => import('../components/AdInterstitialModal'));
+const PricingModal = lazy(() => import('../components/pricing/PricingModal'));
 
 export default function MergePage() {
     const { isPro, isAdFree } = useAuth();
@@ -360,21 +361,23 @@ export default function MergePage() {
                                 </button>
                             </div>
 
-                            <div style={{
-                                display: 'flex', flexDirection: 'column', gap: 8,
-                                maxHeight: 480, overflowY: 'auto', paddingRight: 4,
-                            }}>
-                                {items.map((item) => (
-                                    <FileCard
-                                        key={item.id}
-                                        item={item}
-                                        onRemove={handleRemoveItem}
-                                        onPreview={(item) => setPreviewIndex(items.indexOf(item))}
-                                        onDownloadSingle={handleDownloadSingle}
-                                        isProcessing={isProcessing}
-                                    />
-                                ))}
-                            </div>
+                            <Suspense fallback={null}>
+                                <div style={{
+                                    display: 'flex', flexDirection: 'column', gap: 8,
+                                    maxHeight: 480, overflowY: 'auto', paddingRight: 4,
+                                }}>
+                                    {items.map((item) => (
+                                        <FileCard
+                                            key={item.id}
+                                            item={item}
+                                            onRemove={handleRemoveItem}
+                                            onPreview={(item) => setPreviewIndex(items.indexOf(item))}
+                                            onDownloadSingle={handleDownloadSingle}
+                                            isProcessing={isProcessing}
+                                        />
+                                    ))}
+                                </div>
+                            </Suspense>
                         </div>
                     )}
                 </div>
@@ -389,26 +392,27 @@ export default function MergePage() {
                             borderRadius: 20, padding: 24,
                             display: 'flex', flexDirection: 'column', gap: 24,
                         }}>
-                            {/* Merge controls (exact props from original App.jsx) */}
-                            <MergeControls
-                                direction={direction}
-                                setDirection={setDirection}
-                                padding={padding}
-                                setPadding={setPadding}
-                                bgColor={bgColor}
-                                setBgColor={setBgColor}
-                            />
+                            <Suspense fallback={null}>
+                                <MergeControls
+                                    direction={direction}
+                                    setDirection={setDirection}
+                                    padding={padding}
+                                    setPadding={setPadding}
+                                    bgColor={bgColor}
+                                    setBgColor={setBgColor}
+                                />
 
-                            <hr className="divider" />
+                                <hr className="divider" />
 
-                            <DownloadButton
-                                onProcessAll={handleProcessAll}
-                                onDownloadZip={() => { }}
-                                isProcessing={isProcessing}
-                                processedCount={processedCount}
-                                totalCount={items.length}
-                                activeTool="merge"
-                            />
+                                <DownloadButton
+                                    onProcessAll={handleProcessAll}
+                                    onDownloadZip={() => { }}
+                                    isProcessing={isProcessing}
+                                    processedCount={processedCount}
+                                    totalCount={items.length}
+                                    activeTool="merge"
+                                />
+                            </Suspense>
                         </div>
 
                         {!isAdFree && <AdSlot type="rectangle" />}
@@ -424,27 +428,33 @@ export default function MergePage() {
                 </div>
             )}
 
-            {/* ── Modals ── */}
-            <AdInterstitialModal
-                isOpen={adModal.open}
-                onClose={() => setAdModal(m => ({ ...m, open: false }))}
-                onAdComplete={adModal.onComplete || (() => { })}
-                onOpenPricing={() => { setAdModal(m => ({ ...m, open: false })); setPricingModalOpen(true); }}
-                fileName={adModal.fileName}
-            />
+            {/* ── Modals (Lazy Loaded) ── */}
+            <Suspense fallback={null}>
+                {adModal.open && (
+                    <AdInterstitialModal
+                        isOpen={adModal.open}
+                        onClose={() => setAdModal(m => ({ ...m, open: false }))}
+                        onAdComplete={adModal.onComplete || (() => { })}
+                        onOpenPricing={() => { setAdModal(m => ({ ...m, open: false })); setPricingModalOpen(true); }}
+                        fileName={adModal.fileName}
+                    />
+                )}
 
-            {previewIndex !== null && (
-                <ImagePreview
-                    items={items}
-                    currentIndex={previewIndex}
-                    onNavigate={setPreviewIndex}
-                    onClose={() => setPreviewIndex(null)}
-                    onDownload={handleDownloadSingle}
-                    onDownloadAll={handleDownloadZip}
-                />
-            )}
+                {previewIndex !== null && (
+                    <ImagePreview
+                        items={items}
+                        currentIndex={previewIndex}
+                        onNavigate={setPreviewIndex}
+                        onClose={() => setPreviewIndex(null)}
+                        onDownload={handleDownloadSingle}
+                        onDownloadAll={handleDownloadZip}
+                    />
+                )}
 
-            <PricingModal isOpen={pricingModalOpen} onClose={() => setPricingModalOpen(false)} />
+                {pricingModalOpen && (
+                    <PricingModal isOpen={pricingModalOpen} onClose={() => setPricingModalOpen(false)} />
+                )}
+            </Suspense>
 
             {/* PRO limit modal */}
             {proLimitModalOpen && (

@@ -32,7 +32,9 @@ export default defineConfig({
             !dep.includes('vendor-pdf') &&
             !dep.includes('vendor-heic') &&
             !dep.includes('vendor-docx') &&
-            !dep.includes('vendor-jszip')
+            !dep.includes('vendor-jszip') &&
+            !dep.includes('jspdf') &&
+            !dep.includes('html2canvas')
         );
       }
     },
@@ -43,8 +45,6 @@ export default defineConfig({
             return 'vendor-react';
           if (id.includes('node_modules/@react-oauth'))
             return 'vendor-oauth';
-          if (id.includes('node_modules/jspdf') || id.includes('node_modules/html2canvas') || id.includes('node_modules/dompurify'))
-            return 'vendor-pdf';
           if (id.includes('node_modules/heic2any'))
             return 'vendor-heic';
           if (id.includes('node_modules/docx'))

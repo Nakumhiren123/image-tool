@@ -6,9 +6,9 @@ import Footer from './components/Footer';
 const SEOContentSection = lazy(() => import('./components/seo/SEOContentSection'));
 import ScrollToTop from './components/ScrollToTop';
 import { useAuth } from './context/useAuth';
-const ConvertersHubPage = lazy(() => import('./pages/ConvertersHubPage'));
+import ConvertersHubPage from './pages/ConvertersHubPage';
 
-// Lazy-loaded AdSlot (never loaded on homepage)
+// Lazy-loaded AdSlot
 const AdSlot = lazy(() => import('./components/AdSlot'));
 
 // Lazy-loaded Modals
@@ -76,6 +76,7 @@ function ScrollToTopButton() {
       onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
       onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
       title="Back to top"
+      aria-label="Back to top"
     >
       ↑
     </button>
@@ -87,8 +88,12 @@ function ToolRouteFallback() {
   const path = location.pathname;
   let title = 'PicCraft Image Tools';
   let desc = 'Free online image conversion, compression, and photo editing tools';
+  const isHub = path === '/' || path === '/converters';
 
-  if (path === '/resize') {
+  if (isHub) {
+    title = 'Image Format Converters';
+    desc = 'Free online converters for every image format — JPG, PNG, WEBP, AVIF, GIF, BMP, HEIC and more.';
+  } else if (path === '/resize') {
     title = 'Image Resizer';
     desc = 'Resize to exact dimensions, percentage scale, or target KB/MB file size';
   } else if (path === '/compress') {
@@ -124,18 +129,18 @@ function ToolRouteFallback() {
           {desc}
         </p>
       </div>
-      <div style={{ maxWidth: 800, margin: '0 auto', border: '2px dashed #cbd5e1', borderRadius: 24, padding: '48px 24px', textAlign: 'center', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>Select or Drop Images Here</h2>
-        <p style={{ fontSize: '0.875rem', color: '#475569' }}>Supports JPG, PNG, WEBP, AVIF, HEIC, GIF, BMP</p>
-      </div>
+      {!isHub && (
+        <div style={{ maxWidth: 800, margin: '0 auto', border: '2px dashed #cbd5e1', borderRadius: 24, padding: '48px 24px', textAlign: 'center', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>Select or Drop Images Here</h2>
+          <p style={{ fontSize: '0.875rem', color: '#475569' }}>Supports JPG, PNG, WEBP, AVIF, HEIC, GIF, BMP</p>
+        </div>
+      )}
     </main>
   );
 }
 
 export default function App() {
   const { isAdFree } = useAuth();
-  const location = useLocation();
-  const isHome = location.pathname === '/' || location.pathname === '/converters';
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('login');
   const [pricingModalOpen, setPricingModalOpen] = useState(false);
@@ -152,12 +157,12 @@ export default function App() {
         onOpenAdmin={() => setAdminModalOpen(true)}
       />
 
-      {!isAdFree && !isHome && (
+      {!isAdFree && (
         <Suspense fallback={null}>
           <div className="side-ad-gutter side-ad-left"><AdSlot type="skyscraper" /></div>
         </Suspense>
       )}
-      {!isAdFree && !isHome && (
+      {!isAdFree && (
         <Suspense fallback={null}>
           <div className="side-ad-gutter side-ad-right"><AdSlot type="skyscraper" /></div>
         </Suspense>
@@ -204,7 +209,6 @@ export default function App() {
           <Route path="/jpeg-to-pdf" element={<ConverterPage from="jpeg" to="pdf" />} />
           <Route path="/jpeg-to-ico" element={<ConverterPage from="jpeg" to="ico" />} />
           <Route path="/jpeg-to-docx" element={<ConverterPage from="jpeg" to="docx" />} />
-
 
           {/* ── WEBP conversions ── */}
           <Route path="/webp-to-jpg" element={<ConverterPage from="webp" to="jpg" />} />
@@ -275,7 +279,7 @@ export default function App() {
         <SEOContentSection />
       </Suspense>
 
-      {!isAdFree && !isHome && (
+      {!isAdFree && (
         <Suspense fallback={null}>
           <div style={{ padding: '0 24px 32px' }}><AdSlot type="leaderboard" /></div>
         </Suspense>

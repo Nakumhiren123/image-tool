@@ -69,6 +69,7 @@ export default function UploadArea({ onFilesSelected, title, subtitle, hasFiles 
         type="file"
         multiple={multiple}
         accept={accepted}
+        aria-label="Upload image files"
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
@@ -131,4 +132,3 @@ export default function UploadArea({ onFilesSelected, title, subtitle, hasFiles 
     </div>
   );
 }
-

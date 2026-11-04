@@ -77,6 +77,8 @@ export default function ConvertersHubPage() {
                 <div style={{ position: 'relative', maxWidth: 420, margin: '0 auto' }}>
                     <Search size={16} color="var(--text-3)" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
                     <input
+                        id="search-converters"
+                        aria-label="Search image converters"
                         type="text"
                         value={search}
                         onChange={e => setSearch(e.target.value)}
@@ -92,6 +94,7 @@ export default function ConvertersHubPage() {
                     {search && (
                         <button
                             onClick={() => setSearch('')}
+                            aria-label="Clear search query"
                             style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-3)', fontWeight: 700, fontSize: '1rem' }}
                         >✕</button>
                     )}
@@ -110,7 +113,7 @@ export default function ConvertersHubPage() {
                 <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-3)' }}>
                     <Search size={36} style={{ margin: '0 auto 12px', opacity: 0.2 }} />
                     <p style={{ fontSize: '0.95rem', fontWeight: 600 }}>No converters found for "{search}"</p>
-                    <button onClick={() => setSearch('')} style={{ marginTop: 10, background: 'transparent', border: 'none', color: 'var(--primary-light)', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem' }}>
+                    <button onClick={() => setSearch('')} aria-label="Clear search" style={{ marginTop: 10, background: 'transparent', border: 'none', color: 'var(--primary-light)', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem' }}>
                         Clear search
                     </button>
                 </div>
@@ -137,8 +140,9 @@ export default function ConvertersHubPage() {
                                     background: colors.color,
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     flexShrink: 0,
+                                    color: '#ffffff'
                                 }}>
-                                    <span style={{ color: '#fff', fontFamily: 'var(--font-head)', fontWeight: 900, fontSize: '0.8rem' }}>
+                                    <span style={{ color: '#ffffff', fontFamily: 'var(--font-head)', fontWeight: 900, fontSize: '0.8rem' }}>
                                         {groupKey}
                                     </span>
                                 </div>

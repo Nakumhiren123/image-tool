@@ -5,3 +5,4 @@ Disallow: /admin
 Disallow: /profile
 
 Sitemap: https://image-tool-frontend.vercel.app/sitemap.xml
+Agentmap: https://image-tool-frontend.vercel.app/.well-known/ai-catalog.json

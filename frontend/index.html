@@ -18,38 +18,30 @@
     img{max-width:100%;height:auto;display:block}
     a{color:inherit;text-decoration:none}
     button{cursor:pointer;border:none;background:none;font-family:inherit}
+    .grad-text{background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 50%,#2563eb 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   </style>
 
   <link rel="icon" href="/favicon.ico" sizes="any">
-
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-
   <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- Agent & AI Discoverability Tags (ARD 1.0) -->
+  <link rel="ai-catalog" type="application/json" href="/.well-known/ai-catalog.json">
+  <link rel="alternate" type="text/markdown" href="/llms.txt" title="LLMs Text Summary">
+
   <meta name="theme-color" content="#0F172A" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
   <meta name="application-name" content="PicCraft">
-
   <meta name="apple-mobile-web-app-capable" content="yes">
-
   <meta name="apple-mobile-web-app-title" content="PicCraft">
-
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-
   <meta name="mobile-web-app-capable" content="yes">
-
   <meta name="format-detection" content="telephone=no">
-
   <meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-
   <meta name="bingbot" content="index,follow">
-
   <meta name="referrer" content="strict-origin-when-cross-origin">
 
   <!-- Primary SEO Meta Tags -->
@@ -71,13 +63,9 @@
   <meta property="og:description"
     content="Convert formats (JPG, PNG, WEBP, AVIF, HEIC), compress to target KB (20KB, 50KB), and resize photos with high precision. 100% free & secure." />
   <meta property="og:image" content="https://image-tool-frontend.vercel.app/og-image.png">
-
   <meta property="og:image:width" content="1200">
-
   <meta property="og:image:height" content="630">
-
   <meta property="og:image:type" content="image/png">
-
   <meta property="og:image:alt" content="PicCraft Free Online Image Tools">
   <meta property="og:locale" content="en_US" />
 
@@ -88,14 +76,9 @@
   <meta name="twitter:description"
     content="Convert formats, compress to target KB (20KB, 50KB), and resize photos with high precision." />
   <meta name="twitter:image" content="https://image-tool-frontend.vercel.app/og-image.png" />
-
   <meta name="twitter:site" content="@PicCraft">
-
   <meta name="twitter:creator" content="@PicCraft">
-
   <meta name="twitter:image:alt" content="PicCraft Free Online Image Tools">
-
-  <!-- Google Fonts Preconnect for Performance Optimization -->
 
   <!-- Google Analytics & GTM — deferred to idle to eliminate long tasks and protect TBT -->
   <script>
@@ -122,7 +105,6 @@
   <!-- Google AdSense — non-blocking idle load to protect FCP and LCP metrics -->
   <script>
     (function() {
-      if (window.location.pathname === '/' || window.location.pathname === '/converters') return;
       function loadAdSense() {
         if (document.querySelector('script[src*="adsbygoogle.js"]')) return;
         var s = document.createElement('script');
@@ -259,13 +241,13 @@
     <main class="main-content" style="flex:1;max-width:1280px;margin:0 auto;width:100%;padding:40px 24px">
       <div class="page-title-area" style="margin-bottom:36px;text-align:center">
         <h1 style="font-family:'Inter',system-ui,sans-serif;font-weight:900;font-size:clamp(1.8rem,4vw,2.8rem);letter-spacing:-0.03em;color:#0f172a;margin-bottom:10px">
-          <span id="tool-hero-title">Image Compressor</span>
+          <span id="tool-hero-title" class="grad-text">Image Format Converters</span>
         </h1>
-        <p id="tool-hero-desc" style="font-size:0.95rem;color:#475569;max-width:500px;margin:0 auto">
-          Shrink file size with quality control or target KB precision
+        <p id="tool-hero-desc" style="font-size:0.95rem;color:#475569;max-width:560px;margin:0 auto">
+          Free online converters for every image format — JPG, PNG, WEBP, AVIF, GIF, BMP, HEIC and more.
         </p>
       </div>
-      <div style="max-width:800px;margin:0 auto;border:2px dashed #cbd5e1;border-radius:24px;padding:48px 24px;text-align:center;background:#ffffff;box-shadow:0 1px 3px rgba(0,0,0,0.05)">
+      <div id="tool-hero-card" style="display:none;max-width:800px;margin:0 auto;border:2px dashed #cbd5e1;border-radius:24px;padding:48px 24px;text-align:center;background:#ffffff;box-shadow:0 1px 3px rgba(0,0,0,0.05)">
         <h2 style="font-size:1.25rem;font-weight:700;color:#0f172a;margin-bottom:8px">Select or Drop Images Here</h2>
         <p style="font-size:0.875rem;color:#475569">Supports JPG, PNG, WEBP, AVIF, HEIC, GIF, BMP</p>
       </div>
@@ -277,7 +259,12 @@
         var p = window.location.pathname;
         var t = document.getElementById('tool-hero-title');
         var d = document.getElementById('tool-hero-desc');
+        var c = document.getElementById('tool-hero-card');
         if (!t) return;
+        var isTool = (p === '/compress' || p === '/resize' || p === '/rotate' || p === '/watermark' || p === '/merge' || p === '/crop' || p === '/filter' || p === '/name-date' || p === '/convert' || p.indexOf('-to-') !== -1);
+        if (c && isTool) {
+          c.style.display = 'block';
+        }
         if (p === '/resize') {
           t.textContent = 'Image Resizer';
           if (d) d.textContent = 'Resize to exact dimensions, percentage scale, or target KB/MB file size';
@@ -302,6 +289,12 @@
         } else if (p === '/name-date') {
           t.textContent = 'Name & Date Banner';
           if (d) d.textContent = 'Add name and date of birth/photo banner for exam forms & ID photos';
+        } else if (p.indexOf('-to-') !== -1) {
+          var parts = p.replace(/^\//, '').split('-to-');
+          if (parts.length === 2) {
+            t.textContent = parts[0].toUpperCase() + ' to ' + parts[1].toUpperCase() + ' Converter';
+            if (d) d.textContent = 'Convert ' + parts[0].toUpperCase() + ' images to ' + parts[1].toUpperCase() + ' directly in your browser';
+          }
         }
       } catch (e) {}
     })();

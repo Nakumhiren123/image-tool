@@ -20,7 +20,7 @@
 - [Watermark Image](https://image-tool-frontend.vercel.app/watermark): Add text or logo watermarks with opacity and positioning controls.
 - [Merge Images](https://image-tool-frontend.vercel.app/merge): Combine multiple photos into a single vertical or horizontal composite.
 
-## Information & Policies
+## Optional
 - [Privacy Policy](https://image-tool-frontend.vercel.app/privacy): Information regarding local browser processing, cookies, and privacy guarantees.
 - [Terms of Service](https://image-tool-frontend.vercel.app/terms): Terms of service governing usage of PicCraft web image tools.
 - [API Documentation](https://image-tool-frontend.vercel.app/api-docs): Technical documentation for developer integrations and endpoints.

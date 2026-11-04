@@ -173,13 +173,13 @@ function ConvertDropdown({ onClose, triggerRef, dropdownPortalRef }) {
 export default function Navbar({ onOpenPricing }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [mobileConverterOpen, setMobileConverterOpen] = useState(false); // ← ADD THIS
+  const [mobileConverterOpen, setMobileConverterOpen] = useState(false);
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
   const dropdownPortalRef = useRef(null);
   const { user, logoutUser, isPro } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate(); // ← ADD THIS
+  const navigate = useNavigate();
 
   // Detect active tool from current URL
   const activeTool = tools.find(t => location.pathname.startsWith(t.path))?.id
@@ -215,7 +215,7 @@ export default function Navbar({ onOpenPricing }) {
       <div className="navbar-row">
 
         {/* Logo */}
-        <div className="navbar-logo">
+        <Link to="/" className="navbar-logo" style={{ textDecoration: 'none', color: 'inherit' }} aria-label="PicCraft Home">
           <div className="navbar-logo-icon">
             <Image size={18} color="#fff" />
           </div>
@@ -226,7 +226,7 @@ export default function Navbar({ onOpenPricing }) {
             </div>
             <p className="navbar-tagline" style={{ color: 'rgb(71, 85, 105)' }}>All-in-One Toolbox</p>
           </div>
-        </div>
+        </Link>
 
         {/* Desktop Tool Tabs */}
         <nav className="navbar-tools-desktop">
